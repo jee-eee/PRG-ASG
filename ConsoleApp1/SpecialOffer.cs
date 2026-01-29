@@ -1,4 +1,9 @@
-﻿using System;
+﻿//==========================================================
+// Student Number : S10273008B
+// Student Name : Lee Ruo Yu
+// Partner Name : Pang Jia En
+//==========================================================
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
