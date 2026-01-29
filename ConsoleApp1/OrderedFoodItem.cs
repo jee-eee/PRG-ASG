@@ -25,7 +25,7 @@ namespace ConsoleApp1
 
         public double CalculateSubTotal()
         {
-            subTotal = FoodItem.itemPrice * QtyOrdered;
+            subTotal = FoodItem.ItemPrice * QtyOrdered;
             return subTotal;
         }
 
