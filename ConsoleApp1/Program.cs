@@ -1,4 +1,74 @@
 ﻿using ConsoleApp1;
+using System;
+using System.ComponentModel;
+using System.Diagnostics.Metrics;
+using System.Runtime.CompilerServices;
+using System.Xml.Serialization;
+
+
+//Start of program
+
+//Main Menu
+void DisplayMenu()
+{
+    Console.WriteLine("=====Gruberoo Food Delivery System=====");
+    Console.WriteLine("1. List all restaurants and menu items");
+    Console.WriteLine("2. List all order");
+    Console.WriteLine("3. Create a new order");
+    Console.WriteLine("4. Process an order");
+    Console.WriteLine("5. Modify an existing order");
+    Console.WriteLine("6. Delete an existing order");
+    Console.WriteLine("0. Exit");
+}
+
+void RunMenu()
+{
+    int input = -1;
+
+    while (input != 0)
+    {
+        DisplayMenu();
+        Console.WriteLine("Enter your choice: ");
+        input=Convert.ToInt32(Console.ReadLine());
+        if (input == 1)
+        {
+            ListRestaurants();
+        }
+        else if (input == 2)
+        {
+            ListOrder();
+        }
+        else if (input == 3)
+        {
+            CreateOrder();
+        }
+
+        else if (input ==4)
+        {
+            ProcessOrder();
+        }
+
+        else if (input == 5)
+        {
+            ModifyOrder();
+        }
+
+        else if (input ==6)
+        {
+            DeleteOrder();
+        }
+
+        else if (input ==0)
+        {
+            break;
+        }
+
+        else
+        {
+            Console.WriteLine("Invalid choice. Please try again.");
+        }
+    }
+}
 //Q1 
 //Student Name:Lee Ruo Yu
 //Student Number: S10273008B
@@ -99,10 +169,7 @@ List<Customer> LoadCustomers(string filePath)
     return customers;
 }
 
-static List<Order> LoadOrders(
-    string filePath,
-    List<Customer> customers,
-    List<Restaurant> restaurants)
+List<Order> LoadOrders(string filePath,List<Customer> customers,List<Restaurant> restaurants)
 {
     List<Order> orders = new List<Order>();
     var lines = File.ReadAllLines(filePath);
@@ -128,45 +195,245 @@ static List<Order> LoadOrders(
         Restaurant restaurant = restaurants.Find(r => r.restaurantId == restaurantId);         
         if (restaurant != null)        
         {        
-            restaurant.AddOrder(order);            
+            restaurant.orders.Add(order);            
         }    
     }
     return orders;
 }
+
 //Q3 
 //Student Number:S10269305E
 //Student Name:Pang Jia En
-Console.WriteLine("All Reastaurants and Menu Item");
-Console.WriteLine("=================================");
-foreach (Restaurant r in restaurants)
+void ListRestaurants()
 {
-    Console.WriteLine($"Restaurant: {r.restaurantName} ({r.restaurantId})");
-    foreach (Menu menu in r.menus)
+    Console.WriteLine("All Reastaurants and Menu Item");
+    Console.WriteLine("=================================");
+    foreach (Restaurant r in restaurants)
     {
-        foreach (FoodItem item in menu.menuItems)
+        Console.WriteLine($"Restaurant: {r.restaurantName} ({r.restaurantId})");
+        foreach (Menu menu in r.menus)
         {
-            Console.WriteLine($" - {item.ItemName} :  {item.ItemDescription}  - ${ item.Price}");
+            foreach (FoodItem item in menu.foodItems)
+            {
+                Console.WriteLine($" - {item.itemName} :  {item.itemDesc}  - ${item.itemPrice}");
+            }
         }
+        Console.WriteLine();
     }
-    Console.WriteLine();
 }
 
 //Q4 
 //Student Name:Lee Ruo Yu
 //Student Number: S10273008B
+void ListOrder()
+{
 
+}
 //Q5 
 //Student Number:S10269305E
 //Student Name:Pang Jia En
+void CreateOrder()
+{
+    Console.WriteLine("Create New Order");
+    Console.WriteLine("================");
+    Console.Write("Enter Customer Email: ");
+    string customerEmail = Console.ReadLine();
+    Console.WriteLine("Enter Restaurant ID:: ");
+    string restaurantId = Console.ReadLine();
+    Console.Write("Enter Delivery Date (dd/mm/yyyy): ");
+    DateTime deliveryData = DateTime.Parse(Console.ReadLine()!);
+    Console.Write("Enter Delivery Time (hh:mm): ");
+    DateTime deliveryTime = DateTime.Parse(Console.ReadLine()!);
+    Console.Write("Enter Delivery Address: ");
+    string deliveryAddress = Console.ReadLine();
+
+    Restaurant selectedRestaurant = restaurants.Find(r => r.restaurantId == restaurantId);
+    if (selectedRestaurant == null)
+    {
+        Console.WriteLine("Invalid Restaurant ID.");
+        return;
+    }
+
+    List<FoodItem> availableItems = new List<FoodItem>();
+    int itemNumber = 1;
+
+    Console.WriteLine("Available Food Items: ");
+    foreach (Menu menu in selectedRestaurant.menus)
+    {
+        foreach (FoodItem item in menu.foodItems)
+        {
+            Console.WriteLine($"{itemNumber}. {item.itemName} - ${item.itemPrice}");
+            availableItems.Add(item);
+            itemNumber++;
+        }
+    }
+
+    double total = 0;
+    int choice;
+    Console.Write("Enter item number (0 to finish): ");
+    choice = int.Parse(Console.ReadLine()!);
+
+    if (choice > 0 && choice <= availableItems.Count)
+    {
+        Console.Write("Enter quantity: ");
+        int quantity = int.Parse(Console.ReadLine());
+
+        FoodItem selectedItem = availableItems[choice - 1];
+        total += selectedItem.itemPrice * quantity;
+    }
+
+    string specialRequest = "";
+    Console.WriteLine("Add special request? [Y/N]");
+    string specialChoice = Console.ReadLine()!;
+
+    if (specialChoice.ToUpper() == "Y")
+    {
+        Console.Write("Enter special request: ");
+        specialRequest = Console.ReadLine()!;
+    }
+
+    double deliveryfee = 5.0;
+
+    Console.WriteLine($"Order Total: ${total} + ${deliveryfee} = ${total+deliveryfee} ");
+
+    Console.WriteLine("Proceed to payment? [Y/N]");
+    string proceedPayment = Console.ReadLine()!;
+    if (proceedPayment.ToUpper() != "Y")
+    {
+        Console.WriteLine("Order cancelled.");
+        return;
+    }
+
+    Console.WriteLine("Payment method:");
+    Console.WriteLine("[CC Credit Card / [PP] Paypal / [CD] Cash on Delivery: ");
+    string paymentMethod = Console.ReadLine()!;
+
+    //create order
+    int newOrderId = orders.Count + 1;
+    Order newOrder = new Order(newOrderId, DateTime.Now, deliveryAddress, deliveryData.AddHours(deliveryTime.Hour).AddMinutes(deliveryTime.Minute));
+
+    newOrder.OrderStatus = "Pending";
+    newOrder.OrderPaymentMethod = paymentMethod;
+
+    //add to customer
+    Customer customer = customers.Find(c => c.EmailAddress == customerEmail);
+    if (customer != null)
+    {
+        customer.AddOrder(newOrder);
+    }
+
+    //add to restaurant
+    selectedRestaurant.orders.Add(newOrder);
+
+    string csvline = $"{newOrderId},{customerEmail},{restaurantId},{DateTime.Now},{deliveryData.AddHours(deliveryTime.Hour).AddMinutes(deliveryTime.Minute)},{deliveryAddress},{paymentMethod},Pending";
+    File.AppendAllText("orders.csv", csvline + Environment.NewLine);
+
+    Console.WriteLine($"Order {newOrderId} created successfully! Status:Preaparing ");
+}
 
 //Q6 
 //Student Name:Lee Ruo Yu
 //Student Number: S10273008B:
+void ProcessOrder()
+{
 
+}
 //Q7 
 //Student Number:S10269305E
 //Student Name:Pang Jia En
+void ModifyOrder()
+{
+    Console.WriteLine("Modify Order");
+    Console.WriteLine("============");
+    Console.WriteLine("Enter Customer Email: ");
+    string custEmail = Console.ReadLine();
 
+    Customer cust = customers.Find(c => c.EmailAddress == custEmail);
+    if (cust == null)
+    {
+        Console.WriteLine("Customer not found.");
+        return;
+    }
+
+    List<Order> pendingOrders = new List<Order>();
+
+    Console.WriteLine("Pending Orders: ");
+    foreach (Order o in cust.orders)
+    {
+        if (o.OrderStatus == "Pending")
+        {
+            Console.WriteLine($"Order ID: {o.OrderId}");
+            pendingOrders.Add(o);
+        }
+    }
+
+    if (pendingOrders.Count == 0)
+    {
+        Console.WriteLine("No pending orders.");
+        return;
+    }
+
+    Console.WriteLine("Enter Order ID: ");
+    int orderId = int.Parse(Console.ReadLine());
+
+    Order selectedOrder = pendingOrders.Find(o => o.OrderId == orderId);
+    if (selectedOrder == null)
+    {
+        Console.WriteLine("Invalid Order ID.");
+        return;
+    }
+
+
+    Console.WriteLine("Order Items: ");
+    int count = 1;
+    foreach (OrderedFoodItem ofi in selectedOrder.orderedFoodItems)
+    {
+        Console.WriteLine($"{count}. {ofi.FoodItem.itemName} - {ofi.QtyOrdered}");
+        count++;
+    }
+    Console.WriteLine($"Address: ");
+    Console.WriteLine($"{selectedOrder.DeliveryAddress}");
+    Console.WriteLine("Delivery Data/Time");
+    Console.WriteLine($"{selectedOrder.DeliveryDateTime}");
+
+    Console.WriteLine("Modify: [1]Items [2]Address [3] Delivery Time: ");
+    int choices = int.Parse(Console.ReadLine());
+
+    if (choices == 1)
+    {
+        Console.WriteLine("Enter new Items: ");
+        string item = Console.ReadLine();
+        Console.WriteLine($"Order {orderId} updated. New Delivery Time: {item}");
+    }
+
+    else if (choices == 2)
+    {
+        Console.Write("Enter new Address: ");
+        string newAddress = Console.ReadLine();
+        selectedOrder.DeliveryAddress = newAddress;
+
+        Console.WriteLine($"Order {orderId} updated. New Address: {newAddress}");
+    }
+
+    else if (choices == 3)
+    {
+        Console.Write("Enter new Delivery Time (hh:mm): ");
+        TimeSpan newTime = TimeSpan.Parse(Console.ReadLine());
+
+        selectedOrder.DeliveryDateTime = selectedOrder.DeliveryDateTime.Date + newTime;
+
+        Console.WriteLine($"\nOrder {orderId} updated. New Delivery Time: {selectedOrder.DeliveryDateTime:HH:mm}");
+    }
+    else
+    {
+        Console.WriteLine("Invalid choice.");
+    }
+
+}
 //Q8 
 //Student Name:Lee Ruo Yu
 //Student Number: S10273008B
+void DeleteOrder()
+{
+
+}
