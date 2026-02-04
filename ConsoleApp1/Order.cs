@@ -77,6 +77,15 @@ namespace ConsoleApp1
             }
         }
 
+        public bool ConfirmOrder()
+        {
+            if (OrderStatus == "Pending")
+            {
+                OrderStatus = "Preparing";
+                return true;
+            }
+            return false;
+        }
         public override string ToString()
         {
             return "Order ID: " + OrderId + " Delivery Date/Time : " + DeliveryDateTime + " Address: " + DeliveryAddress + " Total: $" + OrderTotal + " Status: " + OrderStatus;

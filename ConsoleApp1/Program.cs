@@ -25,11 +25,12 @@ void RunMenu()
 {
     int input = -1;
 
-    while (input != 0)
+    while (true)
     {
         DisplayMenu();
         Console.WriteLine("Enter your choice: ");
         input=Convert.ToInt32(Console.ReadLine());
+
         if (input == 1)
         {
             ListRestaurants();
@@ -150,7 +151,7 @@ void LoadFoodItems(string filePath, List<Restaurant> restaurants)
 //Student Number:S10269305E
 //Student Name:Pang Jia En
 List<Customer> customers = LoadCustomers("customers.csv");
-List<Order> orders = LoadOrders("orders.csv", customers, restaurants);
+List<Order> orders = LoadOrders("orders - Copy.csv", customers, restaurants);
 
 
 
@@ -180,8 +181,16 @@ List<Order> LoadOrders(string filePath,List<Customer> customers,List<Restaurant>
         int orderId = int.Parse(fields[0].Trim());        
         string customerEmail = fields[1].Trim();        
         string restaurantId = fields[2].Trim();        
-        DateTime orderDateTime = DateTime.Parse(fields[3].Trim());        
-        DateTime deliveryDateTime = DateTime.Parse(fields[4].Trim());        
+        string[] d1 = fields[3].Split('/');
+        DateTime orderDateTime = new DateTime(
+            int.Parse(d1[2]), int.Parse(d1[1]), int.Parse(d1[0])
+        );
+
+        string[] d2 = fields[4].Split('/');
+        DateTime deliveryDateTime = new DateTime(
+            int.Parse(d2[2]), int.Parse(d2[1]), int.Parse(d2[0])
+        );
+       
         string deliveryAddress = fields[5].Trim();
         
         Order order = new Order(orderId, orderDateTime, deliveryAddress, deliveryDateTime);        
@@ -275,102 +284,8 @@ void ListOrder()
 //Student Name:Pang Jia En
 void CreateOrder()
 {
-    Console.WriteLine("Create New Order");
-    Console.WriteLine("================");
-    Console.Write("Enter Customer Email: ");
-    string customerEmail = Console.ReadLine();
-    Console.WriteLine("Enter Restaurant ID:: ");
-    string restaurantId = Console.ReadLine();
-    Console.Write("Enter Delivery Date (dd/mm/yyyy): ");
-    DateTime deliveryData = DateTime.Parse(Console.ReadLine()!);
-    Console.Write("Enter Delivery Time (hh:mm): ");
-    DateTime deliveryTime = DateTime.Parse(Console.ReadLine()!);
-    Console.Write("Enter Delivery Address: ");
-    string deliveryAddress = Console.ReadLine();
-
-    Restaurant selectedRestaurant = restaurants.Find(r => r.restaurantId == restaurantId);
-    if (selectedRestaurant == null)
-    {
-        Console.WriteLine("Invalid Restaurant ID.");
-        return;
-    }
-
-    List<FoodItem> availableItems = new List<FoodItem>();
-    int itemNumber = 1;
-
-    Console.WriteLine("Available Food Items: ");
-    foreach (Menu menu in selectedRestaurant.menus)
-    {
-        foreach (FoodItem item in menu.foodItems)
-        {
-            Console.WriteLine($"{itemNumber}. {item.itemName} - ${item.itemPrice}");
-            availableItems.Add(item);
-            itemNumber++;
-        }
-    }
-
-    double total = 0;
-    int choice;
-    Console.Write("Enter item number (0 to finish): ");
-    choice = int.Parse(Console.ReadLine()!);
-
-    if (choice > 0 && choice <= availableItems.Count)
-    {
-        Console.Write("Enter quantity: ");
-        int quantity = int.Parse(Console.ReadLine());
-
-        FoodItem selectedItem = availableItems[choice - 1];
-        total += selectedItem.itemPrice * quantity;
-    }
-
-    string specialRequest = "";
-    Console.WriteLine("Add special request? [Y/N]");
-    string specialChoice = Console.ReadLine()!;
-
-    if (specialChoice.ToUpper() == "Y")
-    {
-        Console.Write("Enter special request: ");
-        specialRequest = Console.ReadLine()!;
-    }
-
-    double deliveryfee = 5.0;
-
-    Console.WriteLine($"Order Total: ${total} + ${deliveryfee} = ${total+deliveryfee} ");
-
-    Console.WriteLine("Proceed to payment? [Y/N]");
-    string proceedPayment = Console.ReadLine()!;
-    if (proceedPayment.ToUpper() != "Y")
-    {
-        Console.WriteLine("Order cancelled.");
-        return;
-    }
-
-    Console.WriteLine("Payment method:");
-    Console.WriteLine("[CC Credit Card / [PP] Paypal / [CD] Cash on Delivery: ");
-    string paymentMethod = Console.ReadLine()!;
-
-    //create order
-    int newOrderId = orders.Count + 1;
-    Order newOrder = new Order(newOrderId, DateTime.Now, deliveryAddress, deliveryData.AddHours(deliveryTime.Hour).AddMinutes(deliveryTime.Minute));
-
-    newOrder.OrderStatus = "Pending";
-    newOrder.OrderPaymentMethod = paymentMethod;
-
-    //add to customer
-    Customer customer = customers.Find(c => c.EmailAddress == customerEmail);
-    if (customer != null)
-    {
-        customer.AddOrder(newOrder);
-    }
-
-    //add to restaurant
-    selectedRestaurant.orders.Add(newOrder);
-
-    string csvline = $"{newOrderId},{customerEmail},{restaurantId},{DateTime.Now},{deliveryData.AddHours(deliveryTime.Hour).AddMinutes(deliveryTime.Minute)},{deliveryAddress},{paymentMethod},Pending";
-    File.AppendAllText("orders.csv", csvline + Environment.NewLine);
-
-    Console.WriteLine($"Order {newOrderId} created successfully! Status:Preaparing ");
 }
+
 
 //Q6 
 //Student Name:Lee Ruo Yu
@@ -499,92 +414,6 @@ void ProcessOrder()
 //Student Name:Pang Jia En
 void ModifyOrder()
 {
-    Console.WriteLine("Modify Order");
-    Console.WriteLine("============");
-    Console.WriteLine("Enter Customer Email: ");
-    string custEmail = Console.ReadLine();
-
-    Customer cust = customers.Find(c => c.EmailAddress == custEmail);
-    if (cust == null)
-    {
-        Console.WriteLine("Customer not found.");
-        return;
-    }
-
-    List<Order> pendingOrders = new List<Order>();
-
-    Console.WriteLine("Pending Orders: ");
-    foreach (Order o in cust.orders)
-    {
-        if (o.OrderStatus == "Pending")
-        {
-            Console.WriteLine($"Order ID: {o.OrderId}");
-            pendingOrders.Add(o);
-        }
-    }
-
-    if (pendingOrders.Count == 0)
-    {
-        Console.WriteLine("No pending orders.");
-        return;
-    }
-
-    Console.WriteLine("Enter Order ID: ");
-    int orderId = int.Parse(Console.ReadLine());
-
-    Order selectedOrder = pendingOrders.Find(o => o.OrderId == orderId);
-    if (selectedOrder == null)
-    {
-        Console.WriteLine("Invalid Order ID.");
-        return;
-    }
-
-
-    Console.WriteLine("Order Items: ");
-    int count = 1;
-    foreach (OrderedFoodItem ofi in selectedOrder.orderedFoodItems)
-    {
-        Console.WriteLine($"{count}. {ofi.FoodItem.itemName} - {ofi.QtyOrdered}");
-        count++;
-    }
-    Console.WriteLine($"Address: ");
-    Console.WriteLine($"{selectedOrder.DeliveryAddress}");
-    Console.WriteLine("Delivery Data/Time");
-    Console.WriteLine($"{selectedOrder.DeliveryDateTime}");
-
-    Console.WriteLine("Modify: [1]Items [2]Address [3] Delivery Time: ");
-    int choices = int.Parse(Console.ReadLine());
-
-    if (choices == 1)
-    {
-        Console.WriteLine("Enter new Items: ");
-        string item = Console.ReadLine();
-        Console.WriteLine($"Order {orderId} updated. New Delivery Time: {item}");
-    }
-
-    else if (choices == 2)
-    {
-        Console.Write("Enter new Address: ");
-        string newAddress = Console.ReadLine();
-        selectedOrder.DeliveryAddress = newAddress;
-
-        Console.WriteLine($"Order {orderId} updated. New Address: {newAddress}");
-    }
-
-    else if (choices == 3)
-    {
-        Console.Write("Enter new Delivery Time (hh:mm): ");
-        TimeSpan newTime = TimeSpan.Parse(Console.ReadLine());
-
-        selectedOrder.DeliveryDateTime = selectedOrder.DeliveryDateTime.Date + newTime;
-
-        Console.WriteLine($"\nOrder {orderId} updated. New Delivery Time: {selectedOrder.DeliveryDateTime:HH:mm}");
-    }
-    else
-    {
-        Console.WriteLine("Invalid choice.");
-    }
-
 }
 //Q8 
 //Student Name:Lee Ruo Yu
