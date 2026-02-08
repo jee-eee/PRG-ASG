@@ -30,6 +30,8 @@ namespace ConsoleApp1
 
         public List<OrderedFoodItem> OrderedFoodItems { get; set; }
 
+        public string SpecialRequest { get; set; }
+
         public Order()
         {
             OrderedFoodItems = new List<OrderedFoodItem>();
@@ -43,14 +45,12 @@ namespace ConsoleApp1
             DeliveryAddress = deliveryAddress;
             DeliveryDateTime = deliveryDateTime;
             OrderStatus = "Pending";
-            OrderPaid = false;
             OrderedFoodItems = new List<OrderedFoodItem>();
+            SpecialRequest = "";
         }
 
         public double CalculateOrderTotal()
         {
-            OrderTotal = 0;
-
             foreach (OrderedFoodItem item in OrderedFoodItems)
             {
                 OrderTotal += item.CalculateSubTotal();

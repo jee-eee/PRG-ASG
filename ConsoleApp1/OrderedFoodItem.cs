@@ -25,13 +25,11 @@ namespace ConsoleApp1
         {
             FoodItem = foodItem;
             QtyOrdered = qtyOrdered;
-            subTotal = 0;
         }
 
         public double CalculateSubTotal()
         {
-            subTotal = FoodItem.itemPrice * QtyOrdered;
-            return subTotal;
+            return FoodItem.itemPrice * QtyOrdered;
         }
 
         public override string ToString()
