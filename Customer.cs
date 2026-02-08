@@ -5,41 +5,49 @@
 //==========================================================
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace ConsoleApp1
 {
     internal class Customer
     {
         public string EmailAddress { get; set; }
+
         public string CustomerName { get; set; }
 
-        public List<Order> Orders { get; set; }
+        private List<Order> orders;
 
-        public Customer() { }
+        public Customer()
+        {
+            orders = new List<Order>();
+        }
 
         public Customer(string emailAddress, string customerName)
         {
             EmailAddress = emailAddress;
             CustomerName = customerName;
-            Orders = new List<Order>();
+            orders = new List<Order>();
         }
 
         public void AddOrder(Order order)
         {
-            Orders.Add(order);
+            orders.Add(order);
         }
 
         public void DisplayAllOrders()
         {
-            foreach (Order order in Orders)
+            foreach (Order order in orders)
             {
                 Console.WriteLine(order);
             }
         }
         public bool RemoveOrder(Order order)
         {
-            return Orders.Remove(order);
+            return orders.Remove(order);
         }
+
         public override string ToString()
         {
             return "Customer Name: " + CustomerName + " Email: " + EmailAddress;
