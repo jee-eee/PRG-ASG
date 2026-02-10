@@ -380,7 +380,7 @@ void ListOrder()
         string custEmail = "Unknown";
         foreach (Customer c in customers)
         {
-            if (c.orders.Contains(o))
+            if (c.Orders.Contains(o))
             {
                 custEmail = c.EmailAddress;
                 break;
@@ -410,8 +410,6 @@ void ListOrder()
 //Student Name:Pang Jia En
 void CreateOrder()
 {
-    void CreateOrder()
-    {
         Console.WriteLine("Create New Order");
         Console.WriteLine("================");
 
@@ -568,7 +566,6 @@ void CreateOrder()
         $"\"{itemsStr}\""
     );
         Console.WriteLine($"Order {order.OrderId} created successfully! Status: Pending");
-    }
 }
 
 
@@ -607,7 +604,7 @@ void ProcessOrder()
         string custEmail = "Unknown";
         foreach (Customer c in customers)
         {
-            if (c.orders.Contains(o))
+            if (c.Orders.Contains(o))
             {
                 custEmail = c.EmailAddress;
                 break;
@@ -616,14 +613,14 @@ void ProcessOrder()
         Console.WriteLine($"Customer Email: {custEmail}");
 
         Console.WriteLine("Ordered Items:");
-        if (o.orderedFoodItems.Count == 0)
+        if (o.OrderedFoodItems.Count == 0)
         {
             Console.WriteLine(" - (No items)");
         }
         else
         {
             int count = 1;
-            foreach (OrderedFoodItem ofi in o.orderedFoodItems)
+            foreach (OrderedFoodItem ofi in o.OrderedFoodItems)
             {
                 Console.WriteLine($"{count}. {ofi.FoodItem.itemName} - {ofi.QtyOrdered}");
                 count++;
@@ -924,7 +921,7 @@ void DeleteOrder()
     // find pending orders 
     List<Order> pendingOrders = new List<Order>();
     Console.WriteLine("\nPending Orders:");
-    foreach (Order o in cust.orders)
+    foreach (Order o in cust.Orders)
     {
         if (o.OrderStatus == "Pending")
         {
@@ -951,14 +948,14 @@ void DeleteOrder()
 
     Console.WriteLine($"\nOrder ID: {target.OrderId}");
     Console.WriteLine("Ordered Items:");
-    if (target.orderedFoodItems.Count == 0)
+    if (target.OrderedFoodItems.Count == 0)
     {
         Console.WriteLine(" - (No items)");
     }
     else
     {
         int count = 1;
-        foreach (OrderedFoodItem ofi in target.orderedFoodItems)
+        foreach (OrderedFoodItem ofi in target.OrderedFoodItems)
         {
             Console.WriteLine($"{count}. {ofi.FoodItem.itemName} - {ofi.QtyOrdered}");
             count++;

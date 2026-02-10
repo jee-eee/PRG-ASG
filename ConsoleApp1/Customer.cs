@@ -12,7 +12,6 @@ namespace ConsoleApp1
     {
         public string EmailAddress { get; set; }
         public string CustomerName { get; set; }
-
         public List<Order> Orders { get; set; }
 
         public Customer() { }
@@ -29,6 +28,11 @@ namespace ConsoleApp1
             Orders.Add(order);
         }
 
+        public bool RemoveOrder(Order order)
+        {
+            return Orders.Remove(order);
+        }
+
         public void DisplayAllOrders()
         {
             foreach (Order order in Orders)
@@ -36,10 +40,7 @@ namespace ConsoleApp1
                 Console.WriteLine(order);
             }
         }
-        public bool RemoveOrder(Order order)
-        {
-            return Orders.Remove(order);
-        }
+
         public override string ToString()
         {
             return "Customer Name: " + CustomerName + " Email: " + EmailAddress;
